@@ -18,8 +18,8 @@ impl BuildSystem {
         // TODO: Maybe log the entries for debugging?
         let entries = fs::read_dir(path)?
             .filter_map(|it| it.ok().map(|it| it.path()))
-            .filter_map(|path| path.file_name())
-            .collect::<Vec<&OsStr>>()
+            .filter_map(|path| path.file_name().map(|it| Box::new(it)))
+            .collect::<Vec<Box<OsStr>>>()
             ;
 
         let mut result = vec![];
