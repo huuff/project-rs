@@ -42,13 +42,6 @@ impl BuildSystem {
             BuildSystem::Npm => "package.json",
         };
 
-        // TODO: Refactor?
-        for path in paths {
-            if path == target_file {
-                return true;
-            }
-        }
-
-        false
+        paths.iter().any(|path| path == target_file)
     }
 }
