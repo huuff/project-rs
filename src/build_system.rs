@@ -1,8 +1,6 @@
 use std::{
     error::Error,
     fs,
-    path::PathBuf,
-    ffi::OsStr,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -18,8 +16,12 @@ impl BuildSystem {
         // TODO: Maybe log the entries for debugging?
         let entries = fs::read_dir(path)?
             .filter_map(|it| it.ok().map(|it| it.path()))
-            .filter_map(|path| path.file_name().map(|it| Box::new(it)))
-            .collect::<Vec<Box<OsStr>>>()
+            .filter_map(|path| {
+                path.file_name().map(|file_name| {
+                    file_name.to_string_lossy().into_owned()
+                })
+            })
+            .collect::<Vec<String>>()
             ;
 
         let mut result = vec![];
@@ -33,7 +35,7 @@ impl BuildSystem {
         Ok(result)
     }
 
-    fn is_in<'a>(&self, paths: &Vec<&OsStr>) -> bool {
+    fn is_in<'a>(&self, paths: &Vec<String>) -> bool {
         // TODO: Use once_cell?
         let target_file = match self {
             BuildSystem::Cargo => "Cargo.toml",
@@ -42,10 +44,8 @@ impl BuildSystem {
 
         // TODO: Refactor?
         for path in paths {
-            if let Some(path) = path.to_str() {
-                if path == target_file {
-                    return true;
-                }
+            if path == target_file {
+                return true;
             }
         }
 
